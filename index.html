@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>System Security</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================
+   START SCREEN
+========================= */
+
+#startScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #174d25 0%,
+            #09170c 42%,
+            #000 80%
+        );
+}
+
+.startBox {
+    width: min(90%, 500px);
+    padding: 40px 25px;
+
+    text-align: center;
+
+    border: 1px solid rgba(100,255,120,.35);
+    border-radius: 20px;
+
+    background: rgba(0,0,0,.72);
+
+    box-shadow:
+        0 0 30px rgba(0,255,70,.25),
+        inset 0 0 30px rgba(0,255,70,.05);
+
+    backdrop-filter: blur(8px);
+}
+
+.startTitle {
+    margin-bottom: 10px;
+
+    color: #fff;
+
+    font-size: clamp(25px, 6vw, 42px);
+    font-weight: 800;
+}
+
+.startSubtitle {
+    margin-bottom: 28px;
+
+    color: #8dff9c;
+
+    font-family: monospace;
+    font-size: 14px;
+}
+
+#playButton {
+    padding: 18px 48px;
+
+    border: 2px solid #79ff8a;
+    border-radius: 14px;
+
+    background: #16c43b;
+
+    color: #fff;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 0 15px #16c43b,
+        0 0 50px rgba(0,255,60,.25);
+
+    transition: transform .18s ease,
+                box-shadow .18s ease;
+}
+
+#playButton:hover {
+    transform: scale(1.06);
+
+    box-shadow:
+        0 0 25px #16c43b,
+        0 0 70px rgba(0,255,60,.4);
+}
+
+#playButton:active {
+    transform: scale(.94);
+}
+
+/* =========================
+   MAIN SCREEN
+========================= */
+
+#fakeHack {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    overflow: hidden;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #430000,
+            #170000 50%,
+            #050000
+        );
+
+    z-index: 1000;
+}
+
+/* =========================
+   SCANLINES
+========================= */
+
+#scanlines {
+    position: absolute;
+    inset: 0;
+
+    z-index: 800;
+
+    pointer-events: none;
+
+    background:
+        repeating-linear-gradient(
+            to bottom,
+            rgba(255,255,255,.035) 0px,
+            rgba(255,255,255,.035) 1px,
+            transparent 2px,
+            transparent 5px
+        );
+
+    opacity: .5;
+}
+
+/* =========================
+   FAKE CODE
+========================= */
+
+#code {
+    position: absolute;
+    inset: 0;
+
+    padding: 20px;
+
+    color: #ffaaaa;
+
+    font-family: Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.45;
+
+    opacity: .32;
+
+    white-space: pre-wrap;
+
+    overflow: hidden;
+
+    animation: codeMove 8s linear infinite;
+}
+
+@keyframes codeMove {
+
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-420px);
+    }
+
+}
+
+/* =========================
+   RED FLASH
+========================= */
+
+#redOverlay {
+    position: absolute;
+    inset: 0;
+
+    z-index: 5;
+
+    pointer-events: none;
+
+    background: rgba(150,0,0,.35);
+
+    animation: redPulse 1s infinite alternate;
+}
+
+@keyframes redPulse {
+
+    from {
+        opacity: .45;
+    }
+
+    to {
+        opacity: .8;
+    }
+
+}
+
+/* =========================
+   WARNING
+========================= */
+
+#warning {
+    position: absolute;
+
+    top: 18px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 94%;
+
+    z-index: 700;
+
+    text-align: center;
+
+    color: #fff;
+
+    font-size: clamp(17px, 3vw, 30px);
+    font-weight: 900;
+
+    text-shadow:
+        0 0 8px #000,
+        0 0 20px #000;
+
+    animation: warningFlash .55s infinite alternate;
+}
+
+@keyframes warningFlash {
+
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: .45;
+    }
+
+}
+
+/* =========================
+   WINDOWS
+========================= */
+
+#windows {
+    position: absolute;
+    inset: 0;
+
+    z-index: 100;
+
+    pointer-events: none;
+}
+
+.fakeWindow {
+
+    position: absolute;
+
+    width: clamp(190px, 29vw, 360px);
+    min-height: 140px;
+
+    background:
+        linear-gradient(
+            rgba(25,0,0,.96),
+            rgba(5,5,5,.96)
+        );
+
+    border: 1px solid #ff3030;
+
+    box-shadow:
+        0 0 20px rgba(255,0,0,.35),
+        0 0 50px rgba(0,0,0,.9);
+
+    color: #ff7272;
+
+    font-family: Consolas, monospace;
+
+    overflow: hidden;
+
+    animation: appear .35s ease-out;
+}
+
+@keyframes appear {
+
+    from {
+        opacity: 0;
+        transform: scale(.7);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+}
+
+.windowTitle {
+
+    height: 30px;
+
+    display: flex;
+    align-items: center;
+
+    padding: 0 9px;
+
+    background: #270000;
+
+    border-bottom: 1px solid #ff3030;
+
+    color: #ff9a9a;
+
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.windowContent {
+
+    padding: 12px;
+
+    font-size: clamp(9px, 1.3vw, 14px);
+
+    line-height: 1.55;
+}
+
+/* Window positions */
+
+#w1 {
+    top: 9%;
+    left: 3%;
+}
+
+#w2 {
+    top: 12%;
+    right: 3%;
+}
+
+#w3 {
+    bottom: 7%;
+    left: 5%;
+}
+
+#w4 {
+    bottom: 8%;
+    right: 5%;
+}
+
+#w5 {
+
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+}
+
+/* =========================
+   VIDEO
+========================= */
+
+#videoContainer {
+
+    position: absolute;
+    inset: 0;
+
+    z-index: 300;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #000;
+
+    opacity: 0;
+
+    pointer-events: none;
+
+    transition: opacity .7s ease;
+}
+
+#video {
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: contain;
+
+    background: #000;
+}
+
+/* =========================
+   MESSAGE
+========================= */
+
+#systemMessage {
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 18px;
+
+    transform: translateX(-50%);
+
+    width: min(90%, 700px);
+
+    padding: 11px 15px;
+
+    z-index: 750;
+
+    border: 1px solid #ff3030;
+
+    border-radius: 5px;
+
+    background: rgba(0,0,0,.85);
+
+    color: #ff6666;
+
+    text-align: center;
+
+    font-family: Consolas, monospace;
+    font-size: 12px;
+
+    box-shadow:
+        0 0 15px rgba(255,0,0,.25);
+}
+
+/* =========================
+   END
+========================= */
+
+#prankEnd {
+
+    display: none;
+
+    position: absolute;
+    inset: 0;
+
+    z-index: 1000;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        radial-gradient(
+            circle,
+            #172317,
+            #050805 70%
+        );
+
+    text-align: center;
+}
+
+.endBox {
+
+    width: min(90%, 550px);
+
+    padding: 35px 25px;
+
+    border: 1px solid #3cff65;
+    border-radius: 18px;
+
+    background: rgba(0,0,0,.8);
+
+    box-shadow:
+        0 0 35px rgba(0,255,60,.2);
+}
+
+.endTitle {
+
+    color: #55ff77;
+
+    font-size: clamp(30px, 8vw, 55px);
+    font-weight: 900;
+}
+
+.endText {
+
+    margin-top: 12px;
+
+    color: #fff;
+
+    font-family: monospace;
+    font-size: 15px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 700px) {
+
+    .startBox {
+        padding: 30px 18px;
+    }
+
+    #playButton {
+        padding: 16px 36px;
+        font-size: 21px;
+    }
+
+    .fakeWindow {
+        width: 43vw;
+        min-height: 115px;
+    }
+
+    .windowTitle {
+        height: 24px;
+        font-size: 9px;
+    }
+
+    .windowContent {
+        padding: 7px;
+        font-size: 8px;
+    }
+
+    #warning {
+        top: 12px;
+        font-size: 15px;
+    }
+
+    #systemMessage {
+        bottom: 10px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 420px) {
+
+    .fakeWindow {
+        width: 46vw;
+        min-height: 105px;
+    }
+
+    .windowContent {
+        font-size: 7px;
+    }
+
+    #w5 {
+        width: 52vw;
+    }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     START SCREEN
+========================= -->
+
+<div id="startScreen">
+
+    <div class="startBox">
+
+        <div class="startTitle">
+            SYSTEM SECURITY
+        </div>
+
+        <div class="startSubtitle">
+            SECURITY DIAGNOSTIC TERMINAL
+        </div>
+
+        <button id="playButton">
+            PLAY NOW?
+        </button>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     MAIN
+========================= -->
+
+<div id="fakeHack">
+
+    <div id="code">
+SYSTEM INITIALIZATION...
+
+--------------------------------
+
+> Initializing diagnostic system...
+> Loading security modules...
+> Checking system status...
+
+WARNING:
+UNKNOWN PROCESS DETECTED
+
+--------------------------------
+
+SECURITY DIAGNOSTIC
+
+PROCESS ID: 48291
+PROCESS ID: 19372
+PROCESS ID: 83921
+PROCESS ID: 29481
+
+--------------------------------
+
+NETWORK STATUS
+
+CONNECTION: UNKNOWN
+SECURITY: WARNING
+
+--------------------------------
+
+SYSTEM STATUS
+
+FIREWALL: WARNING
+PROTECTION: WARNING
+SECURITY: CRITICAL
+
+--------------------------------
+
+01001000 01000001 01000011 01001011
+
+10101010 01001110 01010011 01000001
+
+01010101 01001110 01000011 01001111
+
+--------------------------------
+
+ANALYZING...
+
+10%
+24%
+39%
+51%
+67%
+78%
+89%
+100%
+
+--------------------------------
+
+CRITICAL WARNING
+
+--------------------------------
+
+SYSTEM DIAGNOSTIC RUNNING
+
+--------------------------------
+
+PLEASE WAIT...
+
+--------------------------------
+    </div>
+
+    <div id="redOverlay"></div>
+
+    <div id="warning">
+        ⚠ SECURITY WARNING ⚠
+    </div>
+
+    <div id="windows">
+
+        <div class="fakeWindow" id="w1">
+
+            <div class="windowTitle">
+                SYSTEM.exe
+            </div>
+
+            <div class="windowContent">
+                Starting diagnostic...<br><br>
+                Memory: CHECKING<br>
+                Process: UNKNOWN<br><br>
+                Scanning...
+            </div>
+
+        </div>
+
+        <div class="fakeWindow" id="w2">
+
+            <div class="windowTitle">
+                NETWORK.exe
+            </div>
+
+            <div class="windowContent">
+                Network diagnostic running.<br><br>
+                Connection: UNKNOWN<br>
+                Encryption: CHECKING<br><br>
+                Monitoring...
+            </div>
+
+        </div>
+
+        <div class="fakeWindow" id="w3">
+
+            <div class="windowTitle">
+                FILESYSTEM.exe
+            </div>
+
+            <div class="windowContent">
+                File diagnostic...<br><br>
+                Files detected: 847<br>
+                Access: SIMULATED<br><br>
+                Processing...
+            </div>
+
+        </div>
+
+        <div class="fakeWindow" id="w4">
+
+            <div class="windowTitle">
+                SECURITY.exe
+            </div>
+
+            <div class="windowContent">
+                Firewall:<br>
+                <b>CHECKING</b><br><br>
+
+                Protection:<br>
+                <b>WARNING</b><br><br>
+
+                Diagnostic active.
+            </div>
+
+        </div>
+
+        <div class="fakeWindow" id="w5">
+
+            <div class="windowTitle">
+                SYSTEM WARNING
+            </div>
+
+            <div class="windowContent">
+                SECURITY WARNING<br><br>
+                Diagnostic in progress.<br><br>
+                Please wait...
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- VIDEO -->
+
+    <div id="videoContainer">
+
+        <video
+            id="video"
+            src="Jeff the killer - Scream _ Face(480P)_1.mp4"
+            playsinline
+            preload="auto">
+        </video>
+
+    </div>
+
+    <!-- MESSAGE -->
+
+    <div id="systemMessage">
+        SYSTEM DIAGNOSTIC RUNNING — PLEASE WAIT...
+    </div>
+
+    <div id="scanlines"></div>
+
+    <!-- END -->
+
+    <div id="prankEnd">
+
+        <div class="endBox">
+
+            <div class="endTitle">
+                😂 YOU GOT TROLLED!
+            </div>
+
+            <div class="endText">
+                Don't worry — this was only a prank.
+                <br><br>
+                No files, IP addresses or system settings
+                were accessed.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+/* =========================
+   ELEMENTS
+========================= */
+
+const startScreen =
+    document.getElementById("startScreen");
+
+const playButton =
+    document.getElementById("playButton");
+
+const fakeHack =
+    document.getElementById("fakeHack");
+
+const video =
+    document.getElementById("video");
+
+const videoContainer =
+    document.getElementById("videoContainer");
+
+const warning =
+    document.getElementById("warning");
+
+const systemMessage =
+    document.getElementById("systemMessage");
+
+const prankEnd =
+    document.getElementById("prankEnd");
+
+/* =========================
+   TEXT
+========================= */
+
+const warnings = [
+
+    "⚠ SECURITY WARNING ⚠",
+
+    "⚠ UNKNOWN PROCESS DETECTED ⚠",
+
+    "⚠ SYSTEM DIAGNOSTIC ACTIVE ⚠",
+
+    "⚠ NETWORK WARNING ⚠",
+
+    "⚠ SECURITY CHECK FAILED ⚠",
+
+    "⚠ CRITICAL DIAGNOSTIC WARNING ⚠"
+
+];
+
+const messages = [
+
+    "SYSTEM DIAGNOSTIC RUNNING — PLEASE WAIT...",
+
+    "ANALYZING SYSTEM STATUS...",
+
+    "CHECKING NETWORK STATUS...",
+
+    "READING MEMORY STATUS...",
+
+    "RUNNING SECURITY DIAGNOSTIC...",
+
+    "CHECKING PROTECTION STATUS...",
+
+    "UNKNOWN PROCESS DETECTED..."
+
+];
+
+let warningIndex = 0;
+let messageIndex = 0;
+
+/* =========================
+   START
+========================= */
+
+playButton.addEventListener(
+    "click",
+    async () => {
+
+        startScreen.style.display =
+            "none";
+
+        fakeHack.style.display =
+            "block";
+
+        video.volume = 1;
+        video.muted = false;
+
+        /*
+         * Request fullscreen.
+         * The browser may reject it.
+         */
+
+        try {
+
+            if (
+                document.documentElement
+                    .requestFullscreen
+            ) {
+
+                await document.documentElement
+                    .requestFullscreen();
+
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Fullscreen unavailable."
+            );
+
+        }
+
+        /*
+         * Start video.
+         */
+
+        try {
+
+            await video.play();
+
+        } catch (error) {
+
+            console.log(
+                "Video could not play."
+            );
+
+        }
+
+    }
+);
+
+/* =========================
+   VIDEO VOLUME
+========================= */
+
+video.addEventListener(
+    "volumechange",
+    () => {
+
+        if (video.volume !== 1) {
+            video.volume = 1;
+        }
+
+        if (video.muted) {
+            video.muted = false;
+        }
+
+    }
+);
+
+/* =========================
+   WARNING LOOP
+========================= */
+
+setInterval(
+    () => {
+
+        warningIndex++;
+
+        if (
+            warningIndex >=
+            warnings.length
+        ) {
+
+            warningIndex = 0;
+
+        }
+
+        warning.textContent =
+            warnings[warningIndex];
+
+    },
+    1000
+);
+
+/* =========================
+   MESSAGE LOOP
+========================= */
+
+setInterval(
+    () => {
+
+        messageIndex++;
+
+        if (
+            messageIndex >=
+            messages.length
+        ) {
+
+            messageIndex = 0;
+
+        }
+
+        systemMessage.textContent =
+            messages[messageIndex];
+
+    },
+    1500
+);
+
+/* =========================
+   FAKE PROCESS IDS
+========================= */
+
+setInterval(
+    () => {
+
+        const windows =
+            document.querySelectorAll(
+                ".windowContent"
+            );
+
+        windows.forEach(
+            windowContent => {
+
+                const id =
+                    Math.floor(
+                        Math.random() *
+                        99999
+                    );
+
+                const line =
+                    document.createElement(
+                        "div"
+                    );
+
+                line.textContent =
+                    "Process ID: " + id;
+
+                windowContent.appendChild(
+                    line
+                );
+
+                /*
+                 * Prevent unlimited
+                 * content growth.
+                 */
+
+                while (
+                    windowContent.children.length > 9
+                ) {
+
+                    windowContent.removeChild(
+                        windowContent.firstElementChild
+                    );
+
+                }
+
+            }
+        );
+
+    },
+    2500
+);
+
+/* =========================
+   VIDEO START EFFECT
+========================= */
+
+video.addEventListener(
+    "play",
+    () => {
+
+        setTimeout(
+            () => {
+
+                videoContainer.style.opacity =
+                    "1";
+
+            },
+            900
+        );
+
+    }
+);
+
+/* =========================
+   VIDEO END
+========================= */
+
+video.addEventListener(
+    "ended",
+    async () => {
+
+        videoContainer.style.opacity =
+            "0";
+
+        warning.textContent =
+            "😂 YOU GOT TROLLED! 😂";
+
+        systemMessage.textContent =
+            "THIS WAS JUST A PRANK 😎";
+
+        setTimeout(
+            () => {
+
+                prankEnd.style.display =
+                    "flex";
+
+            },
+            700
+        );
+
+        /*
+         * Exit fullscreen.
+         */
+
+        try {
+
+            if (
+                document.fullscreenElement
+            ) {
+
+                await document.exitFullscreen();
+
+            }
+
+        } catch (error) {
+
+            console.log(
+                "Could not exit fullscreen."
+            );
+
+        }
+
+    }
+);
+
+/* =========================
+   TAB RETURN
+========================= */
+
+document.addEventListener(
+    "visibilitychange",
+    () => {
+
+        if (
+            !document.hidden &&
+            fakeHack.style.display !== "none" &&
+            video.paused &&
+            !video.ended
+        ) {
+
+            video.play().catch(
+                () => {}
+            );
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
